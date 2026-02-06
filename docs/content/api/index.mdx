@@ -1,0 +1,57 @@
+---
+title: API Overview
+---
+
+# API Reference
+
+The Afriex SDK is organized into several service modules.
+
+## Services
+
+- [Transfers](/api/transfers) - International money transfers
+- [Wallets](/api/wallets) - Wallet management
+- [Recipients](/api/recipients) - Recipient management
+- [Rates](/api/rates) - Exchange rates
+- [Banks](/api/banks) - Bank information
+- [Webhooks](/api/webhooks) - Webhook handling
+
+## Core Types
+
+### AfriexConfig
+
+```typescript
+interface AfriexConfig {
+  apiKey: string;
+  environment?: Environment;
+  retryConfig?: RetryConfig;
+}
+```
+
+### Environment
+
+```typescript
+enum Environment {
+  STAGING = 'staging',
+  PRODUCTION = 'production',
+}
+```
+
+## Error Handling
+
+The SDK provides typed error classes:
+
+```typescript
+import { ApiError, NetworkError, RateLimitError } from '@afriex/sdk';
+
+try {
+  await afriex.transfers.create({ ... });
+} catch (error) {
+  if (error instanceof RateLimitError) {
+    console.error('Rate limited, retry after:', error.retryAfter);
+  } else if (error instanceof ApiError) {
+    console.error('API Error:', error.statusCode, error.message);
+  } else if (error instanceof NetworkError) {
+    console.error('Network Error:', error.message);
+  }
+}
+```

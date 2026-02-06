@@ -1,12 +1,9 @@
-import nextra from 'nextra';
+import nextra from 'nextra'
 
 const withNextra = nextra({
-    // minimal config
-});
+    // Content directory option is not needed - Nextra auto-detects content/ directory
+})
 
 export default withNextra({
-    output: 'export',
-    images: {
-        unoptimized: true,
-    },
-});
+    // Next.js options
+})

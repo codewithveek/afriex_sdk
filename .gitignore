@@ -38,7 +38,7 @@ Thumbs.db
 *.txt
 # Testing
 .vitest/
-
+sample/
 # Misc
 .turbo/
 **/src/**/*.js
