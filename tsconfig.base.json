@@ -10,7 +10,7 @@
         "declarationMap": true,
         "sourceMap": true,
         "outDir": "./dist",
-        "rootDir": "./src",
+        "baseUrl": ".",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -20,15 +20,40 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "paths": {
+            "@afriex/core": [
+                "./packages/core/src"
+            ],
+            "@afriex/transfers": [
+                "./packages/transfers/src"
+            ],
+            "@afriex/wallets": [
+                "./packages/wallets/src"
+            ],
+            "@afriex/recipients": [
+                "./packages/recipients/src"
+            ],
+            "@afriex/rates": [
+                "./packages/rates/src"
+            ],
+            "@afriex/webhooks": [
+                "./packages/webhooks/src"
+            ],
+            "@afriex/banks": [
+                "./packages/banks/src"
+            ],
+            "@afriex/sdk": [
+                "./packages/sdk/src"
+            ]
+        }
     },
-    "include": [
-        "src/**/*"
-    ],
     "exclude": [
         "node_modules",
         "dist",
         "**/*.test.ts",
-        "**/*.spec.ts"
+        "**/*.spec.ts",
+        "build",
+        "coverage"
     ]
 }

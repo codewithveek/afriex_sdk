@@ -3,27 +3,23 @@
     "version": "1.0.0",
     "description": "Rate service for Afriex SDK",
     "main": "./dist/index.js",
-    "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/index.mjs",
             "require": "./dist/index.js",
             "types": "./dist/index.d.ts"
         }
     },
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+        "build": "tsc",
         "type-check": "tsc --noEmit",
-        "clean": "rimraf dist",
-        "test": "jest"
+        "clean": "rimraf dist"
     },
     "dependencies": {
         "@afriex/core": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^5.0.5",
-        "tsup": "^8.0.1",
         "typescript": "^5.3.3"
     },
     "files": [

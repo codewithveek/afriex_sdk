@@ -77,7 +77,7 @@ export class HttpClient {
         );
     }
 
-    private async handleError(error: AxiosError): Promise<never> {
+    private async handleError(error: AxiosError): Promise<unknown> {
         if (error.response) {
             // Server responded with error
             const { status, data } = error.response;
@@ -129,7 +129,7 @@ export class HttpClient {
         );
     }
 
-    private async retryRequest(error: AxiosError): Promise<never> {
+    private async retryRequest(error: AxiosError): Promise<unknown> {
         const config = error.config as AxiosRequestConfigWithRetry;
         config.__retryCount = (config.__retryCount || 0) + 1;
 

@@ -1,0 +1,51 @@
+{
+    "name": "@afriex/sdk",
+    "version": "1.0.0",
+    "description": "Official TypeScript SDK for the Afriex Business API",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "type-check": "tsc --noEmit",
+        "clean": "rimraf dist"
+    },
+    "dependencies": {
+        "@afriex/core": "workspace:*",
+        "@afriex/transfers": "workspace:*",
+        "@afriex/wallets": "workspace:*",
+        "@afriex/recipients": "workspace:*",
+        "@afriex/rates": "workspace:*",
+        "@afriex/webhooks": "workspace:*",
+        "@afriex/banks": "workspace:*"
+    },
+    "devDependencies": {
+        "rimraf": "^5.0.5",
+        "typescript": "^5.3.3"
+    },
+    "peerDependencies": {
+        "typescript": ">=5.0.0"
+    },
+    "files": [
+        "dist",
+        "README.md"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "afriex",
+        "sdk",
+        "api",
+        "money-transfer",
+        "payments",
+        "fintech",
+        "typescript"
+    ],
+    "license": "MIT"
+}
