@@ -4,120 +4,136 @@ title: Webhooks
 
 # Webhooks
 
-The Webhooks service handles webhook configuration and verification.
+Afriex sends webhook notifications for key events. The SDK provides a verifier to validate webhook signatures.
 
-## Methods
+## Setup
 
-### `create(params)`
-
-Register a new webhook endpoint.
+Initialize the SDK with your webhook public key:
 
 ```typescript
-const webhook = await afriex.webhooks.create({
-  url: 'https://your-app.com/webhooks/afriex',
-  events: ['transfer.completed', 'transfer.failed'],
-  secret: 'your-webhook-secret',
+const afriex = new AfriexSDK({
+  apiKey: 'your-api-key',
+  webhookPublicKey: 'your-afriex-public-key'
 });
 ```
 
-**Parameters:**
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `url` | `string` | Yes | Webhook endpoint URL |
-| `events` | `string[]` | Yes | Events to subscribe to |
-| `secret` | `string` | No | Secret for signature verification |
-
-### `list()`
-
-List all registered webhooks.
+## Verify Webhook Signature
 
 ```typescript
-const webhooks = await afriex.webhooks.list();
-```
-
-### `get(id)`
-
-Get a webhook by ID.
-
-```typescript
-const webhook = await afriex.webhooks.get('webhook_123');
-```
-
-### `update(id, params)`
-
-Update a webhook.
-
-```typescript
-const updated = await afriex.webhooks.update('webhook_123', {
-  events: ['transfer.completed'],
-});
-```
-
-### `delete(id)`
-
-Delete a webhook.
-
-```typescript
-await afriex.webhooks.delete('webhook_123');
-```
-
-## Webhook Verification
-
-Verify incoming webhook signatures:
-
-```typescript
-import { WebhookVerifier } from '@afriex/sdk';
-
-const verifier = new WebhookVerifier('your-webhook-secret');
-
-// In your webhook handler
-app.post('/webhooks/afriex', (req, res) => {
+app.post('/webhook', (req, res) => {
   const signature = req.headers['x-webhook-signature'];
-  const payload = req.body;
+  const payload = req.body; // Raw string body
 
-  if (verifier.verify(payload, signature)) {
-    // Process the webhook
-    console.log('Webhook verified:', payload.event);
+  try {
+    const event = afriex.webhooks.verifyAndParse(payload, signature);
+    
+    // Handle the event
+    switch (event.event) {
+      case 'customer.created':
+        console.log('Customer created:', event.data);
+        break;
+      case 'TRANSACTION.CREATED':
+        console.log('Transaction created:', event.data);
+        break;
+      case 'PAYMENT_METHOD.CREATED':
+        console.log('Payment method created:', event.data);
+        break;
+    }
+
     res.status(200).send('OK');
-  } else {
-    res.status(401).send('Invalid signature');
+  } catch (error) {
+    console.error('Invalid signature');
+    res.status(400).send('Invalid signature');
   }
 });
 ```
 
 ## Event Types
 
+### Customer Events
+
 | Event | Description |
 | :--- | :--- |
-| `transfer.created` | Transfer was created |
-| `transfer.processing` | Transfer is being processed |
-| `transfer.completed` | Transfer completed successfully |
-| `transfer.failed` | Transfer failed |
-| `transfer.cancelled` | Transfer was cancelled |
+| `customer.created` | Customer was created |
+| `customer.updated` | Customer was updated |
+| `customer.deleted` | Customer was deleted |
 
-## Types
-
-### Webhook
-
+**Payload:**
 ```typescript
-interface Webhook {
-  id: string;
-  url: string;
-  events: string[];
-  active: boolean;
-  createdAt: string;
-  updatedAt: string;
+{
+  event: 'customer.created',
+  data: {
+    customerId: string,
+    name: string,
+    email: string,
+    phone: string,
+    countryCode: string
+  }
 }
 ```
 
-### WebhookEvent
+### Transaction Events
+
+| Event | Description |
+| :--- | :--- |
+| `TRANSACTION.CREATED` | Transaction was created |
+| `TRANSACTION.UPDATED` | Transaction status changed |
+
+**Payload:**
+```typescript
+{
+  event: 'TRANSACTION.UPDATED',
+  data: {
+    transactionId: string,
+    customerId: string,
+    destinationId: string,
+    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | ...,
+    type: string,
+    sourceAmount: string,
+    sourceCurrency: string,
+    destinationAmount: string,
+    destinationCurrency: string,
+    meta: { narration?, invoice?, idempotencyKey?, merchantId? },
+    createdAt: string,
+    updatedAt: string
+  }
+}
+```
+
+### Payment Method Events
+
+| Event | Description |
+| :--- | :--- |
+| `PAYMENT_METHOD.CREATED` | Payment method was created |
+| `PAYMENT_METHOD.UPDATED` | Payment method was updated |
+| `PAYMENT_METHOD.DELETED` | Payment method was deleted |
+
+**Payload:**
+```typescript
+{
+  event: 'PAYMENT_METHOD.CREATED',
+  data: {
+    paymentMethodId: string,
+    channel: string,
+    customerId: string,
+    accountName: string,
+    accountNumber: string,
+    countryCode: string,
+    institution: { institutionId?, institutionName?, institutionCode? },
+    recipient: { recipientName?, recipientEmail?, recipientPhone? }
+  }
+}
+```
+
+## Signature Verification Only
+
+If you only want to verify the signature without parsing:
 
 ```typescript
-interface WebhookEvent {
-  id: string;
-  event: string;
-  data: Record<string, unknown>;
-  createdAt: string;
+const isValid = afriex.webhooks.verify(payload, signature);
+
+if (isValid) {
+  const event = JSON.parse(payload);
+  // Handle event
 }
 ```

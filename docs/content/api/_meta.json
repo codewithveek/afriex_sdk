@@ -1,9 +1,9 @@
 {
     "index": "Overview",
-    "transfers": "Transfers",
-    "wallets": "Wallets",
-    "recipients": "Recipients",
+    "customers": "Customers",
+    "transactions": "Transactions",
+    "payment-methods": "Payment Methods",
+    "balance": "Balance",
     "rates": "Rates",
-    "banks": "Banks",
     "webhooks": "Webhooks"
 }

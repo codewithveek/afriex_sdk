@@ -1,0 +1,70 @@
+---
+title: Customers
+---
+
+# Customers API
+
+Manage customers on the Afriex platform with full KYC support.
+
+## Create Customer
+
+```typescript
+const customer = await afriex.customers.create({
+  fullName: 'John Doe',
+  email: 'john@example.com',
+  phone: '+1234567890',
+  countryCode: 'US',
+  kyc: {
+    // Optional KYC fields
+  },
+  meta: {
+    // Optional metadata
+  }
+});
+```
+
+**Request Parameters:**
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `fullName` | `string` | ✅ | Customer's full name |
+| `email` | `string` | ✅ | Customer's email address |
+| `phone` | `string` | ✅ | Customer's phone number |
+| `countryCode` | `string` | ✅ | ISO country code (e.g., `US`, `NG`) |
+| `kyc` | `object` | - | KYC verification data |
+| `meta` | `object` | - | Additional metadata |
+
+## Get Customer
+
+```typescript
+const customer = await afriex.customers.get('customer-id');
+```
+
+## List Customers
+
+```typescript
+const response = await afriex.customers.list({
+  page: 1,
+  limit: 20
+});
+
+console.log(response.data); // Customer[]
+console.log(response.total); // Total count
+```
+
+## Update KYC
+
+```typescript
+const customer = await afriex.customers.updateKyc('customer-id', {
+  kyc: {
+    documentType: 'passport',
+    documentNumber: 'AB123456'
+  }
+});
+```
+
+## Delete Customer
+
+```typescript
+await afriex.customers.delete('customer-id');
+```

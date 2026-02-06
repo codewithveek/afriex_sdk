@@ -1,0 +1,71 @@
+---
+title: Transactions
+---
+
+# Transactions API
+
+Create and manage money transfer transactions.
+
+## Create Transaction
+
+```typescript
+const transaction = await afriex.transactions.create({
+  customerId: 'customer-id',
+  destinationAmount: 10000,
+  destinationCurrency: 'NGN',
+  sourceCurrency: 'USD',
+  destinationId: 'payment-method-id',
+  meta: {
+    narration: 'Payment for services',
+    invoice: 'INV-001',
+    idempotencyKey: 'unique-key-123'
+  }
+});
+```
+
+**Request Parameters:**
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `customerId` | `string` | ✅ | ID of the customer |
+| `destinationAmount` | `number` | ✅ | Amount to send |
+| `destinationCurrency` | `string` | ✅ | Target currency (e.g., `NGN`) |
+| `sourceCurrency` | `string` | ✅ | Source currency (e.g., `USD`) |
+| `destinationId` | `string` | ✅ | Payment method ID to send to |
+| `meta.narration` | `string` | - | Transaction description |
+| `meta.invoice` | `string` | - | Invoice reference |
+| `meta.idempotencyKey` | `string` | - | Unique key for idempotency |
+
+## Get Transaction
+
+```typescript
+const transaction = await afriex.transactions.get('transaction-id');
+```
+
+## List Transactions
+
+```typescript
+const response = await afriex.transactions.list({
+  page: 1,
+  limit: 20
+});
+
+console.log(response.data); // Transaction[]
+```
+
+## Transaction Status
+
+Transactions can have the following statuses:
+
+| Status | Description |
+| :--- | :--- |
+| `PENDING` | Transaction created, awaiting processing |
+| `PROCESSING` | Transaction is being processed |
+| `COMPLETED` | Transaction completed successfully |
+| `SUCCESS` | Transaction successful |
+| `FAILED` | Transaction failed |
+| `CANCELLED` | Transaction was cancelled |
+| `REFUNDED` | Transaction was refunded |
+| `RETRY` | Transaction is being retried |
+| `REJECTED` | Transaction was rejected |
+| `IN_REVIEW` | Transaction is under review |

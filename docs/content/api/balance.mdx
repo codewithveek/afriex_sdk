@@ -1,0 +1,45 @@
+---
+title: Balance
+---
+
+# Balance API
+
+Get your organization's wallet balances.
+
+## Get Balance
+
+```typescript
+const balances = await afriex.balance.getBalance({
+  currencies: 'USD,NGN,GBP'
+});
+
+// Returns: { USD: 10000, NGN: 5000000, GBP: 8000 }
+```
+
+You can also pass an array of currencies:
+
+```typescript
+const balances = await afriex.balance.getBalance({
+  currencies: ['USD', 'NGN', 'GBP']
+});
+```
+
+## Get Balance for Single Currency
+
+```typescript
+const usdBalance = await afriex.balance.getBalanceForCurrency('USD');
+
+console.log('USD Balance:', usdBalance); // 10000
+```
+
+## Response Format
+
+The balance response is a map of currency codes to amounts:
+
+```typescript
+{
+  "USD": 10000.50,
+  "NGN": 5000000.00,
+  "GBP": 8000.25
+}
+```

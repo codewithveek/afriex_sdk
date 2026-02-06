@@ -25,23 +25,36 @@ npm install @afriex/sdk
 ### 1. Import the SDK
 
 ```typescript
-import { Afriex, Environment } from '@afriex/sdk';
+import { AfriexSDK, Environment } from '@afriex/sdk';
 ```
 
 ### 2. Initialize the client
 
 ```typescript
-const afriex = new Afriex({
+const afriex = new AfriexSDK({
   apiKey: process.env.AFRIEX_API_KEY,
-  environment: Environment.STAGING, // Defaults to PRODUCTION if omitted
+  environment: 'staging', // 'staging' or 'production'
 });
 ```
 
 ### 3. Make a request
 
 ```typescript
-const wallets = await afriex.wallets.getWallets();
-console.log('My Wallets:', wallets);
+// Create a customer
+const customer = await afriex.customers.create({
+  fullName: 'John Doe',
+  email: 'john@example.com',
+  phone: '+1234567890',
+  countryCode: 'US'
+});
+
+// Get balance
+const balances = await afriex.balance.getBalance({
+  currencies: ['USD', 'NGN']
+});
+
+console.log('Customer:', customer);
+console.log('Balances:', balances);
 ```
 
 ## Configuration Options
@@ -49,7 +62,8 @@ console.log('My Wallets:', wallets);
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `apiKey` | `string` | **Required** | Your Afriex API key. |
-| `environment` | `Environment` | `Environment.PRODUCTION` | Target environment (`STAGING` or `PRODUCTION`). |
+| `environment` | `string` | `'production'` | Target environment (`'staging'` or `'production'`). |
+| `webhookPublicKey` | `string` | - | Afriex public key for webhook verification. |
 | `retryConfig` | `RetryConfig` | `{ maxRetries: 0 }` | Configuration for request retries. |
 
 ### Retry Configuration
@@ -57,7 +71,7 @@ console.log('My Wallets:', wallets);
 By default, retries are **disabled**. You can enable them by passing a `retryConfig`:
 
 ```typescript
-const afriex = new Afriex({
+const afriex = new AfriexSDK({
   apiKey: '...',
   retryConfig: {
     maxRetries: 3,
@@ -66,3 +80,10 @@ const afriex = new Afriex({
   },
 });
 ```
+
+## Server URLs
+
+| Environment | URL |
+| :--- | :--- |
+| Staging | `https://staging.afx-server.com` |
+| Production | `https://prod.afx-server.com` |

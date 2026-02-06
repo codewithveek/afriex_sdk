@@ -2,85 +2,64 @@
 title: Rates
 ---
 
-# Rates
+# Rates API
 
-The Rates service provides exchange rate information.
+Get exchange rates between currencies.
 
-## Methods
-
-### `getRate(params)`
-
-Get the current exchange rate for a currency pair.
+## Get Rates
 
 ```typescript
-const rate = await afriex.rates.getRate({
-  sourceCurrency: 'USD',
-  destinationCurrency: 'NGN',
+const response = await afriex.rates.getRates({
+  base: 'USD,NGN',
+  symbols: 'NGN,USD,GBP,KES'
 });
 
-console.log(`1 USD = ${rate.rate} NGN`);
+console.log(response.rates);
+// {
+//   USD: { NGN: '1550.00', GBP: '0.79', KES: '129.50' },
+//   NGN: { USD: '0.00065', GBP: '0.00051', KES: '0.0835' }
+// }
+
+console.log(response.updatedAt); // Timestamp
 ```
 
 **Parameters:**
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `sourceCurrency` | `string` | Yes | Source currency code |
-| `destinationCurrency` | `string` | Yes | Destination currency code |
-| `amount` | `number` | No | Amount for conversion preview |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `base` | `string \| string[]` | Base currencies (comma-separated or array) |
+| `symbols` | `string \| string[]` | Target currencies to get rates for |
 
-### `getRates()`
+## Get Single Rate
 
-Get all available exchange rates.
+Get the exchange rate between two specific currencies:
 
 ```typescript
-const rates = await afriex.rates.getRates();
+const rate = await afriex.rates.getRate('USD', 'NGN');
+
+console.log('USD to NGN:', rate); // "1550.00"
 ```
 
-### `getSupportedCurrencies()`
+## Convert Amount
 
-Get list of supported currencies.
+Convert an amount from one currency to another:
 
 ```typescript
-const currencies = await afriex.rates.getSupportedCurrencies();
+const result = await afriex.rates.convert(100, 'USD', 'NGN');
+
+console.log('100 USD in NGN:', result); // 155000
 ```
 
-### `convert(params)`
-
-Convert an amount between currencies.
+## Response Format
 
 ```typescript
-const conversion = await afriex.rates.convert({
-  sourceCurrency: 'USD',
-  destinationCurrency: 'NGN',
-  amount: 100,
-});
-
-console.log(`$100 = ₦${conversion.destinationAmount}`);
-```
-
-## Types
-
-### ExchangeRate
-
-```typescript
-interface ExchangeRate {
-  sourceCurrency: string;
-  destinationCurrency: string;
-  rate: number;
-  inverseRate: number;
-  validUntil: string;
-}
-```
-
-### Currency
-
-```typescript
-interface Currency {
-  code: string;
-  name: string;
-  symbol: string;
-  decimals: number;
-  country: string;
+{
+  rates: {
+    [baseCurrency: string]: {
+      [targetCurrency: string]: string
+    }
+  },
+  base: string[],
+  updatedAt: number // Unix timestamp
 }
 ```

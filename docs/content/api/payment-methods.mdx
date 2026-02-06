@@ -1,0 +1,113 @@
+---
+title: Payment Methods
+---
+
+# Payment Methods API
+
+Manage payment methods including bank accounts, mobile money, crypto wallets, and virtual accounts.
+
+## Create Payment Method
+
+```typescript
+const paymentMethod = await afriex.paymentMethods.create({
+  channel: 'BANK_ACCOUNT',
+  customerId: 'customer-id',
+  accountName: 'John Doe',
+  accountNumber: '1234567890',
+  countryCode: 'NG',
+  institution: {
+    institutionCode: '044',
+    institutionName: 'Access Bank'
+  }
+});
+```
+
+**Payment Channels:**
+
+| Channel | Description |
+| :--- | :--- |
+| `BANK_ACCOUNT` | Bank transfer |
+| `MOBILE_MONEY` | Mobile money (e.g., M-Pesa) |
+| `SWIFT` | SWIFT international transfer |
+| `UPI` | Unified Payments Interface (India) |
+| `INTERAC` | Interac (Canada) |
+| `WE_CHAT` | WeChat Pay (China) |
+
+## Get Payment Method
+
+```typescript
+const paymentMethod = await afriex.paymentMethods.get('payment-method-id');
+```
+
+## List Payment Methods
+
+```typescript
+const response = await afriex.paymentMethods.list({
+  page: 1,
+  limit: 20
+});
+```
+
+## Delete Payment Method
+
+```typescript
+await afriex.paymentMethods.delete('payment-method-id');
+```
+
+## Get Institutions (Banks/MoMo Providers)
+
+Get a list of supported financial institutions for a country:
+
+```typescript
+const institutions = await afriex.paymentMethods.getInstitutions({
+  channel: 'BANK_ACCOUNT',
+  countryCode: 'NG'
+});
+
+// Returns: Institution[]
+// { institutionId, institutionName, institutionCode }
+```
+
+## Resolve Account
+
+Verify account details before creating a payment method:
+
+```typescript
+const accountInfo = await afriex.paymentMethods.resolveAccount({
+  channel: 'BANK_ACCOUNT',
+  accountNumber: '1234567890',
+  institutionCode: '044',
+  countryCode: 'NG'
+});
+
+// Returns: { recipientName, recipientEmail, recipientPhone }
+```
+
+## Get Crypto Wallet
+
+Get or create a crypto wallet address:
+
+```typescript
+const response = await afriex.paymentMethods.getCryptoWallet({
+  asset: 'USDT', // or 'USDC'
+  customerId: 'optional-customer-id'
+});
+
+// Returns: { data: [{ address, network }], total, page }
+```
+
+> **Note:** Crypto wallets are only available in production.
+
+## Get Virtual Account
+
+Get or create a virtual bank account:
+
+```typescript
+const virtualAccount = await afriex.paymentMethods.getVirtualAccount({
+  currency: 'USD', // 'USD', 'NGN', 'GBP', or 'EUR'
+  amount: 1000, // Optional
+  customerId: 'optional-customer-id'
+});
+```
+
+> **Note:** Virtual accounts are only available in production.
