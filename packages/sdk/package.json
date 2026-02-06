@@ -17,12 +17,12 @@
     },
     "dependencies": {
         "@afriex/core": "workspace:*",
-        "@afriex/transfers": "workspace:*",
-        "@afriex/wallets": "workspace:*",
-        "@afriex/recipients": "workspace:*",
+        "@afriex/customers": "workspace:*",
+        "@afriex/transactions": "workspace:*",
+        "@afriex/payment-methods": "workspace:*",
+        "@afriex/balance": "workspace:*",
         "@afriex/rates": "workspace:*",
-        "@afriex/webhooks": "workspace:*",
-        "@afriex/banks": "workspace:*"
+        "@afriex/webhooks": "workspace:*"
     },
     "devDependencies": {
         "rimraf": "^5.0.5",

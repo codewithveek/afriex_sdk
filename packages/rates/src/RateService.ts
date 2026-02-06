@@ -1,5 +1,5 @@
-import { HttpClient, ValidationError, Currency } from '@afriex/core';
-import { ExchangeRate, GetRateRequest, ConversionResult } from './types';
+import { HttpClient, ValidationError } from '@afriex/core';
+import { RatesResponse, GetRatesParams } from './types';
 
 export class RateService {
     private httpClient: HttpClient;
@@ -9,53 +9,62 @@ export class RateService {
     }
 
     /**
-     * Get exchange rate between two currencies
+     * Get exchange rates for multiple base currencies and target symbols
+     * GET /v2/public/rates
+     * 
+     * @param params.base - Comma-separated list or array of base currencies (e.g., 'NGN,USD,GBP')
+     * @param params.symbols - Comma-separated list or array of target currencies (e.g., 'NGN,USD,GBP,KES')
+     * @returns Rates response with nested rate maps
      */
-    async getRate(request: GetRateRequest): Promise<ExchangeRate> {
-        if (!request.sourceCurrency || !request.destinationCurrency) {
-            throw new ValidationError('Source and destination currencies are required');
+    async getRates(params: GetRatesParams): Promise<RatesResponse> {
+        if (!params.base || !params.symbols) {
+            throw new ValidationError('Base currencies and symbols are required');
         }
 
-        return this.httpClient.get<ExchangeRate>('/v1/rates', {
-            params: {
-                from: request.sourceCurrency,
-                to: request.destinationCurrency,
-            },
+        const base = Array.isArray(params.base) ? params.base.join(',') : params.base;
+        const symbols = Array.isArray(params.symbols) ? params.symbols.join(',') : params.symbols;
+
+        return this.httpClient.get<RatesResponse>('/v2/public/rates', {
+            params: { base, symbols },
         });
     }
 
     /**
-     * Convert amount from one currency to another
+     * Get exchange rate between two specific currencies
+     * 
+     * @param baseCurrency - The base currency code (e.g., 'USD')
+     * @param targetCurrency - The target currency code (e.g., 'NGN')
+     * @returns The exchange rate as a string
      */
-    async convert(request: GetRateRequest): Promise<ConversionResult> {
-        if (!request.sourceCurrency || !request.destinationCurrency) {
-            throw new ValidationError('Source and destination currencies are required');
+    async getRate(baseCurrency: string, targetCurrency: string): Promise<string> {
+        if (!baseCurrency || !targetCurrency) {
+            throw new ValidationError('Base and target currencies are required');
         }
 
-        if (!request.amount || request.amount <= 0) {
+        const response = await this.getRates({
+            base: baseCurrency,
+            symbols: targetCurrency,
+        });
+
+        return response.rates[baseCurrency]?.[targetCurrency] ?? '0';
+    }
+
+    /**
+     * Convert an amount from one currency to another
+     * 
+     * @param amount - The amount to convert
+     * @param baseCurrency - The source currency code
+     * @param targetCurrency - The target currency code
+     * @returns The converted amount
+     */
+    async convert(amount: number, baseCurrency: string, targetCurrency: string): Promise<number> {
+        if (amount <= 0) {
             throw new ValidationError('Amount must be greater than 0');
         }
 
-        return this.httpClient.get<ConversionResult>('/v1/rates/convert', {
-            params: {
-                from: request.sourceCurrency,
-                to: request.destinationCurrency,
-                amount: request.amount,
-            },
-        });
-    }
+        const rateStr = await this.getRate(baseCurrency, targetCurrency);
+        const rate = parseFloat(rateStr);
 
-    /**
-     * Get all available exchange rates
-     */
-    async getAllRates(baseCurrency?: Currency): Promise<ExchangeRate[]> {
-        const response = await this.httpClient.get<{ data: ExchangeRate[] }>(
-            '/v1/rates/all',
-            {
-                params: baseCurrency ? { base: baseCurrency } : undefined,
-            }
-        );
-
-        return response.data;
+        return amount * rate;
     }
 }

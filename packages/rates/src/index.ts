@@ -1,2 +1,2 @@
+export { RateService } from './RateService';
 export * from './types';
-export * from './RateService';

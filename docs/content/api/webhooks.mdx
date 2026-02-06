@@ -73,7 +73,7 @@ const verifier = new WebhookVerifier('your-webhook-secret');
 
 // In your webhook handler
 app.post('/webhooks/afriex', (req, res) => {
-  const signature = req.headers['x-afriex-signature'];
+  const signature = req.headers['x-webhook-signature'];
   const payload = req.body;
 
   if (verifier.verify(payload, signature)) {

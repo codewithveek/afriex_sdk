@@ -1,24 +1,14 @@
-import { Currency } from '@afriex/core';
+/**
+ * Rate types matching Afriex Business API
+ */
 
-export interface ExchangeRate {
-    sourceCurrency: Currency;
-    destinationCurrency: Currency;
-    rate: number;
-    inverseRate: number;
-    timestamp: string;
+export interface RatesResponse {
+    rates: Record<string, Record<string, string>>;
+    base: string[];
+    updatedAt: number;
 }
 
-export interface GetRateRequest {
-    sourceCurrency: Currency;
-    destinationCurrency: Currency;
-    amount?: number;
-}
-
-export interface ConversionResult {
-    sourceAmount: number;
-    destinationAmount: number;
-    sourceCurrency: Currency;
-    destinationCurrency: Currency;
-    rate: number;
-    timestamp: string;
+export interface GetRatesParams {
+    base: string | string[];
+    symbols: string | string[];
 }

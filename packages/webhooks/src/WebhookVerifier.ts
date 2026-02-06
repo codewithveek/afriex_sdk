@@ -1,58 +1,52 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { WebhookPayload } from './types';
 
 export class WebhookVerifier {
-    private webhookSecret: string;
+    private publicKey: string;
 
-    constructor(webhookSecret: string) {
-        if (!webhookSecret) {
-            throw new Error('Webhook secret is required');
+    /**
+     * Create a webhook verifier
+     * @param publicKey - Afriex's public key for signature verification
+     */
+    constructor(publicKey: string) {
+        if (!publicKey) {
+            throw new Error('Public key is required for webhook verification');
         }
-        this.webhookSecret = webhookSecret;
+        this.publicKey = publicKey;
     }
 
     /**
-     * Verify webhook signature
+     * Verify webhook signature using Afriex's public key
+     * @param payload - Raw webhook payload string
+     * @param signature - Value of x-webhook-signature header
+     * @returns true if signature is valid
      */
-    verify(payload: string, signature: string, timestamp: string): boolean {
-        const expectedSignature = this.generateSignature(payload, timestamp);
-        return crypto.timingSafeEqual(
-            Buffer.from(signature),
-            Buffer.from(expectedSignature)
-        );
+    verify(payload: string, signature: string): boolean {
+        if (!payload || !signature) {
+            return false;
+        }
+
+        try {
+            const verifier = crypto.createVerify('SHA256');
+            verifier.update(payload);
+            return verifier.verify(this.publicKey, signature, 'base64');
+        } catch {
+            return false;
+        }
     }
 
     /**
      * Verify and parse webhook payload
+     * @param payload - Raw webhook payload string
+     * @param signature - Value of x-webhook-signature header
+     * @returns Parsed webhook payload
+     * @throws Error if signature is invalid
      */
-    verifyAndParse(
-        rawPayload: string,
-        signature: string,
-        timestamp: string,
-        toleranceInSeconds: number = 300
-    ): WebhookPayload {
-        // Check timestamp to prevent replay attacks
-        const currentTimestamp = Math.floor(Date.now() / 1000);
-        const payloadTimestamp = parseInt(timestamp, 10);
-
-        if (currentTimestamp - payloadTimestamp > toleranceInSeconds) {
-            throw new Error('Webhook timestamp is too old');
-        }
-
-        // Verify signature
-        if (!this.verify(rawPayload, signature, timestamp)) {
+    verifyAndParse(payload: string, signature: string): WebhookPayload {
+        if (!this.verify(payload, signature)) {
             throw new Error('Invalid webhook signature');
         }
 
-        // Parse payload
-        return JSON.parse(rawPayload);
-    }
-
-    private generateSignature(payload: string, timestamp: string): string {
-        const signedPayload = `${timestamp}.${payload}`;
-        return crypto
-            .createHmac('sha256', this.webhookSecret)
-            .update(signedPayload)
-            .digest('hex');
+        return JSON.parse(payload) as WebhookPayload;
     }
 }

@@ -1,3 +1,2 @@
+export { WebhookVerifier } from './WebhookVerifier';
 export * from './types';
-export * from './WebhookVerifier';
-export * from './WebhookService';
