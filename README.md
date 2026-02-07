@@ -1,13 +1,11 @@
-# Afriex TypeScript SDK
+# @afriex/sdk
 
-Official TypeScript SDK for the Afriex Business API.
+Official TypeScript SDK for the Afriex Business API. A unified interface for all Afriex services.
 
 ## Installation
 
 ```bash
 npm install @afriex/sdk
-# or
-yarn add @afriex/sdk
 # or
 pnpm add @afriex/sdk
 ```
@@ -15,181 +13,98 @@ pnpm add @afriex/sdk
 ## Quick Start
 
 ```typescript
-import { AfriexSDK, Environment } from "@afriex/sdk";
+import { AfriexSDK } from "@afriex/sdk";
+// or use the alias
+import { Afriex } from "@afriex/sdk";
 
 const afriex = new AfriexSDK({
   apiKey: "your-api-key",
-  environment: Environment.PRODUCTION,
+  environment: "production", // or 'staging' (default: 'production')
+  webhookPublicKey: "-----BEGIN PUBLIC KEY-----...", // optional
 });
 
-// Send money
-const transfer = await afriex.transfers.create({
-  type: "bank",
-  amount: 100,
-  sourceCurrency: "USD",
-  destinationCurrency: "NGN",
-  destinationCountry: "NG",
-  bankDetails: {
-    bankCode: "044",
-    accountNumber: "1234567890",
-    accountName: "John Doe",
-  },
+// Customers
+const customer = await afriex.customers.create({
+  fullName: "John Doe",
+  email: "john@example.com",
+  phone: "+1234567890",
+  countryCode: "US",
 });
 
-console.log("Transfer ID:", transfer.id);
-```
-
-## Features
-
-- Type-safe API with full TypeScript support
-- Comprehensive error handling
-- Automatic retry logic for transient failures
-- Webhook signature verification
-- Rate limiting support
-- Tree-shakable modular design
-- Production-ready
-
-## API Reference
-
-### Transfers
-
-```typescript
-// Get a quote
-const quote = await afriex.transfers.getQuote({
-  amount: 100,
-  sourceCurrency: 'USD',
-  destinationCurrency: 'NGN',
-  destinationCountry: 'NG',
-});
-
-// Create a transfer
-const transfer = await afriex.transfers.create({...});
-
-// Get a transfer
-const transfer = await afriex.transfers.get('transfer_id');
-
-// List transfers
-const transfers = await afriex.transfers.list({ page: 1, limit: 10 });
-
-// Cancel a transfer
-await afriex.transfers.cancel('transfer_id');
-```
-
-### Wallets
-
-```typescript
-// Create a wallet
-const wallet = await afriex.wallets.create({
-  type: "business",
-  currency: "USD",
-});
-
-// Get balance
-const balance = await afriex.wallets.getBalance("wallet_id");
-
-// Fund wallet
-await afriex.wallets.fund({
-  walletId: "wallet_id",
-  amount: 1000,
-  paymentMethod: "bank_account",
-});
-```
-
-### Recipients
-
-```typescript
-// Create a recipient
-const recipient = await afriex.recipients.create({
-  firstName: "John",
-  lastName: "Doe",
-  country: "NG",
-  currency: "NGN",
-  bankDetails: {
-    bankCode: "044",
-    accountNumber: "1234567890",
-    accountName: "John Doe",
-  },
-});
-```
-
-### Exchange Rates
-
-```typescript
-// Get exchange rate
-const rate = await afriex.rates.getRate({
-  sourceCurrency: "USD",
-  destinationCurrency: "NGN",
-});
-
-// Convert amount
-const result = await afriex.rates.convert({
-  sourceCurrency: "USD",
-  destinationCurrency: "NGN",
-  amount: 100,
-});
-```
-
-### Banks
-
-```typescript
-// List banks by country
-const banks = await afriex.banks.listBanks("NG");
-
-// Verify bank account
-const result = await afriex.banks.verifyAccount({
-  bankCode: "044",
+// Payment Methods
+const paymentMethod = await afriex.paymentMethods.create({
+  customerId: customer.customerId,
+  channel: "BANK_ACCOUNT",
+  accountName: "John Doe",
   accountNumber: "1234567890",
-  country: "NG",
-});
-```
-
-### Webhooks
-
-```typescript
-// Configure webhook secret
-const afriex = new AfriexSDK({
-  apiKey: "your-api-key",
-  webhookSecret: "your-webhook-secret",
+  countryCode: "NG",
+  institution: {
+    institutionCode: "058",
+    institutionName: "GTBank",
+  },
 });
 
-// Verify webhook payload
-const payload = afriex.webhooks.verifyAndParse(rawBody, signature, timestamp);
-```
+// Transactions
+const transaction = await afriex.transactions.create({
+  customerId: customer.customerId,
+  destinationAmount: 50000,
+  sourceCurrency: "USD",
+  destinationCurrency: "NGN",
+  destinationId: paymentMethod.paymentMethodId,
+});
 
-## Error Handling
+// Rates
+const rate = await afriex.rates.getRate("USD", "NGN");
 
-```typescript
-import { AfriexSDK, ApiError, ValidationError, RateLimitError } from '@afriex/sdk';
+// Balance
+const balances = await afriex.balance.getBalance({
+  currencies: ["USD", "NGN"],
+});
 
-try {
-  await afriex.transfers.create({...});
-} catch (error) {
-  if (error instanceof RateLimitError) {
-    console.log(`Rate limited. Retry after ${error.retryAfter} seconds`);
-  } else if (error instanceof ApiError) {
-    console.error('API Error:', error.message, error.errorCode);
-  } else if (error instanceof ValidationError) {
-    console.error('Validation Error:', error.fields);
-  }
+// Webhook Verification (only if webhookPublicKey provided)
+if (afriex.webhooks) {
+  const isValid = afriex.webhooks.verify(payload, signature);
 }
 ```
 
-## Configuration Options
+## Available Services
+
+| Service                 | Description                                  |
+| ----------------------- | -------------------------------------------- |
+| `afriex.customers`      | Customer CRUD and KYC management             |
+| `afriex.transactions`   | Create and track transactions                |
+| `afriex.paymentMethods` | Bank, mobile money, crypto, virtual accounts |
+| `afriex.balance`        | Organization wallet balances                 |
+| `afriex.rates`          | Exchange rates and conversions               |
+| `afriex.webhooks`       | Webhook signature verification (optional)    |
+
+## Configuration
 
 ```typescript
-const afriex = new AfriexSDK({
-  apiKey: "your-api-key",
-  environment: Environment.PRODUCTION, // or Environment.STAGING
-  enableLogging: true,
-  logLevel: LogLevel.DEBUG,
-  retryConfig: {
-    maxRetries: 5,
-    retryDelay: 2000,
-    retryableStatusCodes: [408, 429, 500, 502, 503, 504],
-  },
-  webhookSecret: "your-webhook-secret",
-});
+interface AfriexSDKConfig {
+  apiKey: string; // Required - Your Afriex API key
+  environment?: "staging" | "production"; // Default: 'production'
+  webhookPublicKey?: string; // Optional - Afriex's public key for webhooks
+}
 ```
+
+## Individual Packages
+
+For smaller bundle sizes, install packages individually:
+
+| Package                   | Description                   |
+| ------------------------- | ----------------------------- |
+| `@afriex/core`            | Base client and configuration |
+| `@afriex/customers`       | Customer management           |
+| `@afriex/transactions`    | Transaction handling          |
+| `@afriex/payment-methods` | Payment methods               |
+| `@afriex/balance`         | Balance queries               |
+| `@afriex/rates`           | Exchange rates                |
+| `@afriex/webhooks`        | Webhook verification          |
+
+## Documentation
+
+Full documentation available at [afriex-sdk-docs.vercel.app](https://afriex-sdk-docs.vercel.app)
 
 ## License
 
