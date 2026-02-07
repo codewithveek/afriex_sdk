@@ -1,31 +1,33 @@
 {
     "name": "@afriex/balance",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "Balance service for Afriex SDK",
-    "main": "dist/index.js",
-    "module": "dist/index.mjs",
-    "types": "dist/index.d.ts",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
     "scripts": {
-        "build": "tsup src/index.ts --format cjs,esm --dts",
-        "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
-        "test": "jest",
-        "lint": "eslint src/",
-        "typecheck": "tsc --noEmit"
+        "build": "tsc",
+        "type-check": "tsc --noEmit",
+        "clean": "rimraf dist"
     },
     "dependencies": {
         "@afriex/core": "workspace:*"
     },
     "devDependencies": {
-        "tsup": "^8.0.0",
-        "typescript": "^5.3.0"
-    },
-    "peerDependencies": {
-        "typescript": ">=5.0.0"
+        "rimraf": "^5.0.5",
+        "typescript": "^5.3.3"
     },
     "files": [
-        "dist"
+        "dist",
+        "README.md"
     ],
     "publishConfig": {
         "access": "public"
-    }
+    },
+    "license": "MIT"
 }
