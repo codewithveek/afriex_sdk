@@ -1,6 +1,6 @@
 {
     "name": "@afriex/core",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Core functionality for Afriex SDK",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
