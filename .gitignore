@@ -51,3 +51,6 @@ sample/
 **_Analysis.md
 **addendum.md
 **spec.md
+presentation.md
+presentation-*.md
+presentation-*/
