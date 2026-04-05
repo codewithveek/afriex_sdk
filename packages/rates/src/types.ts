@@ -3,12 +3,11 @@
  */
 
 export interface RatesResponse {
-    rates: Record<string, Record<string, string>>;
-    base: string[];
-    updatedAt: number;
+  rates: Record<string, Record<string, string>>;
+  updatedAt: number;
 }
 
 export interface GetRatesParams {
-    base: string | string[];
-    symbols: string | string[];
+  toSymbols: string | string[];
+  fromSymbols: string | string[];
 }

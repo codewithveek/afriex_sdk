@@ -42,8 +42,8 @@ async function main() {
 
   // Get exchange rates
   const rates = await afriex.rates.getRates({
-    base: 'USD',
-    symbols: 'NGN,GBP'
+    fromSymbols: 'USD',
+    toSymbols: 'NGN,GBP'
   });
 
   console.log(customer, rates);

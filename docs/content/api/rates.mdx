@@ -10,8 +10,8 @@ Get exchange rates between currencies.
 
 ```typescript
 const response = await afriex.rates.getRates({
-  base: 'USD,NGN',
-  symbols: 'NGN,USD,GBP,KES'
+  fromSymbols: "USD,NGN",
+  toSymbols: "NGN,USD,GBP,KES",
 });
 
 console.log(response.rates);
@@ -25,19 +25,19 @@ console.log(response.updatedAt); // Timestamp
 
 **Parameters:**
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `base` | `string \| string[]` | Base currencies (comma-separated or array) |
-| `symbols` | `string \| string[]` | Target currencies to get rates for |
+| Field         | Type                 | Description                                |
+| :------------ | :------------------- | :----------------------------------------- |
+| `fromSymbols` | `string \| string[]` | Base currencies (comma-separated or array) |
+| `toSymbols`   | `string \| string[]` | Target currencies to get rates for         |
 
 ## Get Single Rate
 
 Get the exchange rate between two specific currencies:
 
 ```typescript
-const rate = await afriex.rates.getRate('USD', 'NGN');
+const rate = await afriex.rates.getRate("USD", "NGN");
 
-console.log('USD to NGN:', rate); // "1550.00"
+console.log("USD to NGN:", rate); // "1550.00"
 ```
 
 ## Convert Amount
@@ -45,9 +45,9 @@ console.log('USD to NGN:', rate); // "1550.00"
 Convert an amount from one currency to another:
 
 ```typescript
-const result = await afriex.rates.convert(100, 'USD', 'NGN');
+const result = await afriex.rates.convert(100, "USD", "NGN");
 
-console.log('100 USD in NGN:', result); // 155000
+console.log("100 USD in NGN:", result); // 155000
 ```
 
 ## Response Format
@@ -55,11 +55,10 @@ console.log('100 USD in NGN:', result); // 155000
 ```typescript
 {
   rates: {
-    [baseCurrency: string]: {
-      [targetCurrency: string]: string
+    [fromSymbol: string]: {
+      [toSymbol: string]: string
     }
   },
-  base: string[],
   updatedAt: number // Unix timestamp
 }
 ```
