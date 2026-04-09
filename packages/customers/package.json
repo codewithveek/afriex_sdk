@@ -1,6 +1,6 @@
 {
   "name": "@afriex/customers",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Customer management service for Afriex SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
