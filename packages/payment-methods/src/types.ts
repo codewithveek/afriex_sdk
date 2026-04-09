@@ -8,7 +8,7 @@ export type PaymentChannel =
   | "MOBILE_MONEY"
   | "UPI"
   | "INTERAC"
-  | "WE_CHAT";
+  | "WE_CHAT"|"ALIPAY"|"PAYBILL_TILL";
 
 export interface PaymentMethodInstitution {
   institutionId?: string;
@@ -117,11 +117,48 @@ export interface GetCryptoWalletParams {
   customerId?: string;
 }
 
-export interface GetVirtualAccountParams {
-  currency: "USD" | "NGN" | "KES" | "GBP" | "EUR";
-  amount?: number;
-  customerId?: string;
-  type: "VIRTUAL_ACCOUNT" | "POOL_ACCOUNT";
+/**
+ * Common parameters for virtual account requests
+ */
+interface GetVirtualAccountBase {
+  /** The 3-letter ISO 4217 currency code for the virtual account */
+  currency: "USD" | "NGN" | "GBP" | "EUR" | "KES" & (string & {});
+  /** Optional transaction reference */
   reference?: string;
+}
+
+/**
+ * Standard virtual account — creates or retrieves a dedicated virtual bank account.
+ */
+interface GetStandardVirtualAccountParams extends GetVirtualAccountBase {
+  /** Defaults to `VIRTUAL_ACCOUNT` if omitted */
+  type?: "VIRTUAL_ACCOUNT";
+  /** Optional transaction amount */
+  amount?: number;
+  /** Optional customer ID. If not provided, the account is created for the business. */
+  customerId?: string;
+  /** Optional ISO 3166-1 alpha-2 country code */
   country?: string;
 }
+
+/**
+ * Pool account — assigns a shared business pool account for the customer's country.
+ * `currency`, `country`, `amount`, and `customerId` are all required.
+ */
+interface GetPoolAccountParams extends GetVirtualAccountBase {
+  type: "POOL_ACCOUNT";
+  /** ISO 3166-1 alpha-2 country code. Required for pool accounts. */
+  country: string;
+  /** Transaction amount. Required for pool accounts. */
+  amount: number;
+  /** Customer ID. Required for pool accounts. */
+  customerId: string;
+}
+
+/**
+ * Parameters for retrieving or creating a virtual account.
+ * Use `VIRTUAL_ACCOUNT` (default) for dedicated accounts or `POOL_ACCOUNT` for shared pool accounts.
+ */
+export type GetVirtualAccountParams =
+  | GetStandardVirtualAccountParams
+  | GetPoolAccountParams;

@@ -8,38 +8,68 @@ Create and manage money transfer transactions.
 
 ## Create Transaction
 
+### Withdraw (default)
+
+Send funds to a customer's destination payment method:
+
 ```typescript
 const transaction = await afriex.transactions.create({
-  customerId: 'customer-id',
-  destinationAmount: 10000,
-  destinationCurrency: 'NGN',
-  sourceCurrency: 'USD',
-  destinationId: 'payment-method-id',
+  customerId: "customer-id",
+  sourceAmount: "10",
+  destinationAmount: "5000",
+  sourceCurrency: "USD",
+  destinationCurrency: "NGN",
+  destinationId: "payment-method-id",
   meta: {
-    narration: 'Payment for services',
-    invoice: 'INV-001',
-    idempotencyKey: 'unique-key-123'
-  }
+    reference: "ref-withdraw-001",
+    idempotencyKey: "unique-key-123",
+    narration: "Payment for services",
+  },
+});
+```
+
+### Deposit
+
+Pull funds from a customer's source payment method:
+
+```typescript
+const transaction = await afriex.transactions.create({
+  customerId: "customer-id",
+  type: "DEPOSIT",
+  sourceAmount: "10",
+  destinationAmount: "5000",
+  sourceCurrency: "USD",
+  destinationCurrency: "NGN",
+  sourceId: "source-payment-method-id",
+  meta: {
+    reference: "ref-deposit-001",
+    idempotencyKey: "unique-key-456",
+  },
 });
 ```
 
 **Request Parameters:**
 
-| Field | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `customerId` | `string` | ✅ | ID of the customer |
-| `destinationAmount` | `number` | ✅ | Amount to send |
-| `destinationCurrency` | `string` | ✅ | Target currency (e.g., `NGN`) |
-| `sourceCurrency` | `string` | ✅ | Source currency (e.g., `USD`) |
-| `destinationId` | `string` | ✅ | Payment method ID to send to |
-| `meta.narration` | `string` | - | Transaction description |
-| `meta.invoice` | `string` | - | Invoice reference |
-| `meta.idempotencyKey` | `string` | - | Unique key for idempotency |
+| Field                 | Type        | Required           | Description                                  |
+| :-------------------- | :---------- | :----------------- | :------------------------------------------- |
+| `customerId`          | `string`    | Yes                | ID of the customer                           |
+| `sourceAmount`        | `${number}` | Yes                | Amount in source currency                    |
+| `destinationAmount`   | `${number}` | Yes                | Amount in destination currency               |
+| `sourceCurrency`      | `string`    | Yes                | Source currency code (e.g., `USD`)           |
+| `destinationCurrency` | `string`    | Yes                | Target currency code (e.g., `NGN`)           |
+| `type`                | `string`    | -                  | `WITHDRAW` (default), `DEPOSIT`, or `SWAP`   |
+| `destinationId`       | `string`    | Yes for `WITHDRAW` | Payment method ID to send funds to           |
+| `sourceId`            | `string`    | Yes for `DEPOSIT`  | Payment method ID to pull funds from         |
+| `meta.reference`      | `string`    | Yes                | Your internal reference (e.g., order ID)     |
+| `meta.idempotencyKey` | `string`    | Yes                | Unique key to prevent duplicate transactions |
+| `meta.narration`      | `string`    | -                  | Transaction description                      |
+| `meta.invoice`        | `string`    | -                  | Base64-encoded invoice document              |
+| `meta.merchantId`     | `string`    | -                  | Your merchant/business identifier            |
 
 ## Get Transaction
 
 ```typescript
-const transaction = await afriex.transactions.get('transaction-id');
+const transaction = await afriex.transactions.get("transaction-id");
 ```
 
 ## List Transactions
@@ -47,7 +77,7 @@ const transaction = await afriex.transactions.get('transaction-id');
 ```typescript
 const response = await afriex.transactions.list({
   page: 1,
-  limit: 20
+  limit: 20,
 });
 
 console.log(response.data); // Transaction[]
@@ -57,15 +87,16 @@ console.log(response.data); // Transaction[]
 
 Transactions can have the following statuses:
 
-| Status | Description |
-| :--- | :--- |
-| `PENDING` | Transaction created, awaiting processing |
-| `PROCESSING` | Transaction is being processed |
-| `COMPLETED` | Transaction completed successfully |
-| `SUCCESS` | Transaction successful |
-| `FAILED` | Transaction failed |
-| `CANCELLED` | Transaction was cancelled |
-| `REFUNDED` | Transaction was refunded |
-| `RETRY` | Transaction is being retried |
-| `REJECTED` | Transaction was rejected |
-| `IN_REVIEW` | Transaction is under review |
+| Status       | Description                              |
+| :----------- | :--------------------------------------- |
+| `PENDING`    | Transaction created, awaiting processing |
+| `PROCESSING` | Transaction is being processed           |
+| `COMPLETED`  | Transaction completed successfully       |
+| `SUCCESS`    | Transaction successful                   |
+| `FAILED`     | Transaction failed                       |
+| `CANCELLED`  | Transaction was cancelled                |
+| `REFUNDED`   | Transaction was refunded                 |
+| `RETRY`      | Transaction is being retried             |
+| `REJECTED`   | Transaction was rejected                 |
+| `IN_REVIEW`  | Transaction is under review              |
+| `UNKNOWN`    | Transaction status is unknown            |

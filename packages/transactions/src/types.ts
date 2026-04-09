@@ -67,14 +67,58 @@ export interface Transaction {
   updatedAt: string;
 }
 
-export interface CreateTransactionRequest {
+/**
+ * Common fields shared by all transaction creation variants
+ */
+interface CreateTransactionBase {
+  /** The unique identifier of the customer */
   customerId: string;
-  destinationAmount: number | string;
+  /** The transaction amount in the source currency */
+  sourceAmount: `${number}`;
+  /** The transaction amount in the destination currency */
+  destinationAmount: `${number}`;
   destinationCurrency: string;
   sourceCurrency: string;
-  destinationId: string;
+  /** Optional transaction metadata. `idempotencyKey` and `reference` are required within meta. */
   meta?: TransactionMeta;
+  destinationId?: string;
+  sourceId?: string;
 }
+
+/**
+ * Withdraw transaction — sends funds to a destination payment method.
+ * `type` defaults to `WITHDRAW` if omitted.
+ */
+interface CreateWithdrawTransaction extends CreateTransactionBase {
+  type?: "WITHDRAW";
+  /** The ID of the destination payment method to send funds to */
+  destinationId: string;
+}
+
+/**
+ * Deposit transaction — pulls funds from a source payment method.
+ */
+interface CreateDepositTransaction extends CreateTransactionBase {
+  type: "DEPOSIT";
+  /** The ID of the source payment method to pull funds from */
+  sourceId: string;
+}
+
+/**
+ * Swap transaction — exchanges between currencies.
+ */
+interface CreateSwapTransaction extends CreateTransactionBase {
+  type: "SWAP";
+}
+
+/**
+ * Request body for creating a transaction. Use `WITHDRAW` (default) to send funds,
+ * `DEPOSIT` to pull funds, or `SWAP` to exchange between currencies.
+ */
+export type CreateTransactionRequest =
+  | CreateWithdrawTransaction
+  | CreateDepositTransaction
+  | CreateSwapTransaction;
 
 export interface ListTransactionsParams {
   page?: number;

@@ -28,9 +28,13 @@ export class RateService {
       ? params.toSymbols.join(",")
       : params.toSymbols;
 
-    return this.httpClient.get<RatesResponse>("/org/rates", {
-      params: { fromSymbols, toSymbols },
-    });
+    const response = await this.httpClient.get<{ data: RatesResponse }>(
+      "/org/rates",
+      {
+        params: { fromSymbols, toSymbols },
+      }
+    );
+    return response.data;
   }
 
   /**
@@ -50,7 +54,7 @@ export class RateService {
       toSymbols: targetCurrency,
     });
 
-    return response.data.rates[baseCurrency]?.[targetCurrency] ?? "0";
+    return response.rates[baseCurrency]?.[targetCurrency] ?? "0";
   }
 
   /**

@@ -33,7 +33,8 @@ describe("TransactionService", () => {
 
       const result = await transactionService.create({
         customerId: "cust-123",
-        destinationAmount: 155000,
+        sourceAmount: "100",
+        destinationAmount: "155000",
         destinationCurrency: "NGN",
         sourceCurrency: "USD",
         destinationId: "pm-123",
@@ -41,7 +42,8 @@ describe("TransactionService", () => {
 
       expect(mockHttpClient.post).toHaveBeenCalledWith("/transaction", {
         customerId: "cust-123",
-        destinationAmount: 155000,
+        sourceAmount: "100",
+        destinationAmount: "155000",
         destinationCurrency: "NGN",
         sourceCurrency: "USD",
         destinationId: "pm-123",
@@ -53,7 +55,8 @@ describe("TransactionService", () => {
       await expect(
         transactionService.create({
           customerId: "",
-          destinationAmount: 1000,
+          sourceAmount: "100",
+          destinationAmount: "1000",
           destinationCurrency: "NGN",
           sourceCurrency: "USD",
           destinationId: "pm-123",
@@ -65,12 +68,81 @@ describe("TransactionService", () => {
       await expect(
         transactionService.create({
           customerId: "cust-123",
-          destinationAmount: 0,
+          sourceAmount: "100",
+          destinationAmount: "" as unknown as `${number}`,
           destinationCurrency: "NGN",
           sourceCurrency: "USD",
           destinationId: "pm-123",
         })
       ).rejects.toThrow(ValidationError);
+    });
+
+    it("should throw ValidationError when sourceAmount is missing", async () => {
+      await expect(
+        transactionService.create({
+          customerId: "cust-123",
+          sourceAmount: "" as unknown as `${number}`,
+          destinationAmount: "1000",
+          destinationCurrency: "NGN",
+          sourceCurrency: "USD",
+          destinationId: "pm-123",
+        })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it("should throw ValidationError when destinationId is missing for WITHDRAW", async () => {
+      await expect(
+        transactionService.create({
+          customerId: "cust-123",
+          sourceAmount: "100",
+          destinationAmount: "1000",
+          destinationCurrency: "NGN",
+          sourceCurrency: "USD",
+          destinationId: "",
+        })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it("should throw ValidationError when sourceId is missing for DEPOSIT", async () => {
+      await expect(
+        transactionService.create({
+          customerId: "cust-123",
+          type: "DEPOSIT",
+          sourceAmount: "100",
+          destinationAmount: "1000",
+          destinationCurrency: "NGN",
+          sourceCurrency: "USD",
+          sourceId: "",
+        })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it("should create a DEPOSIT transaction successfully", async () => {
+      const mockTransaction = {
+        transactionId: "txn-456",
+        customerId: "cust-123",
+        status: "PENDING",
+        sourceAmount: "100",
+        sourceCurrency: "USD",
+        destinationAmount: "155000",
+        destinationCurrency: "NGN",
+      };
+
+      (mockHttpClient.post as jest.Mock).mockResolvedValue({
+        data: mockTransaction,
+      });
+
+      const result = await transactionService.create({
+        customerId: "cust-123",
+        type: "DEPOSIT",
+        sourceAmount: "100",
+        destinationAmount: "155000",
+        destinationCurrency: "NGN",
+        sourceCurrency: "USD",
+        sourceId: "pm-456",
+      });
+
+      expect(result).toEqual(mockTransaction);
     });
   });
 

@@ -16,13 +16,14 @@ describe("RateService", () => {
 
   describe("getRates", () => {
     it("should get rates with string params", async () => {
-      const mockResponse = {
+      const mockRatesData = {
         rates: { USD: { NGN: "1550.00", GBP: "0.79" } },
-
         updatedAt: 1707249600,
       };
 
-      (mockHttpClient.get as jest.Mock).mockResolvedValue(mockResponse);
+      (mockHttpClient.get as jest.Mock).mockResolvedValue({
+        data: mockRatesData,
+      });
 
       const result = await rateService.getRates({
         fromSymbols: "USD",
@@ -32,17 +33,18 @@ describe("RateService", () => {
       expect(mockHttpClient.get).toHaveBeenCalledWith("/org/rates", {
         params: { fromSymbols: "USD", toSymbols: "NGN,GBP" },
       });
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual(mockRatesData);
     });
 
     it("should get rates with array params", async () => {
-      const mockResponse = {
+      const mockRatesData = {
         rates: { USD: { NGN: "1550" }, NGN: { USD: "0.00065" } },
-
         updatedAt: 1707249600,
       };
 
-      (mockHttpClient.get as jest.Mock).mockResolvedValue(mockResponse);
+      (mockHttpClient.get as jest.Mock).mockResolvedValue({
+        data: mockRatesData,
+      });
 
       const result = await rateService.getRates({
         fromSymbols: ["USD", "NGN"],
@@ -50,9 +52,9 @@ describe("RateService", () => {
       });
 
       expect(mockHttpClient.get).toHaveBeenCalledWith("/org/rates", {
-        params: { fromSymbols: ["USD", "NGN"], toSymbols: ["NGN", "USD"] },
+        params: { fromSymbols: "USD,NGN", toSymbols: "NGN,USD" },
       });
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual(mockRatesData);
     });
 
     it("should throw ValidationError when fromSymbols is missing", async () => {
@@ -76,13 +78,14 @@ describe("RateService", () => {
 
   describe("getRate", () => {
     it("should get rate between two currencies", async () => {
-      const mockResponse = {
+      const mockRatesData = {
         rates: { USD: { NGN: "1550.00" } },
-
         updatedAt: 1707249600,
       };
 
-      (mockHttpClient.get as jest.Mock).mockResolvedValue(mockResponse);
+      (mockHttpClient.get as jest.Mock).mockResolvedValue({
+        data: mockRatesData,
+      });
 
       const result = await rateService.getRate("USD", "NGN");
 
@@ -90,12 +93,14 @@ describe("RateService", () => {
     });
 
     it('should return "0" when rate not found', async () => {
-      const mockResponse = {
+      const mockRatesData = {
         rates: {},
         updatedAt: 1707249600,
       };
 
-      (mockHttpClient.get as jest.Mock).mockResolvedValue(mockResponse);
+      (mockHttpClient.get as jest.Mock).mockResolvedValue({
+        data: mockRatesData,
+      });
 
       const result = await rateService.getRate("XYZ", "ABC");
 
@@ -114,12 +119,14 @@ describe("RateService", () => {
 
   describe("convert", () => {
     it("should convert amount between currencies", async () => {
-      const mockResponse = {
+      const mockRatesData = {
         rates: { USD: { NGN: "1550.00" } },
         updatedAt: 1707249600,
       };
 
-      (mockHttpClient.get as jest.Mock).mockResolvedValue(mockResponse);
+      (mockHttpClient.get as jest.Mock).mockResolvedValue({
+        data: mockRatesData,
+      });
 
       const result = await rateService.convert(100, "USD", "NGN");
 

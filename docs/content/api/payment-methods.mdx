@@ -10,33 +10,33 @@ Manage payment methods including bank accounts, mobile money, crypto wallets, an
 
 ```typescript
 const paymentMethod = await afriex.paymentMethods.create({
-  channel: 'BANK_ACCOUNT',
-  customerId: 'customer-id',
-  accountName: 'John Doe',
-  accountNumber: '1234567890',
-  countryCode: 'NG',
+  channel: "BANK_ACCOUNT",
+  customerId: "customer-id",
+  accountName: "John Doe",
+  accountNumber: "1234567890",
+  countryCode: "NG",
   institution: {
-    institutionCode: '044',
-    institutionName: 'Access Bank'
-  }
+    institutionCode: "044",
+    institutionName: "Access Bank",
+  },
 });
 ```
 
 **Payment Channels:**
 
-| Channel | Description |
-| :--- | :--- |
-| `BANK_ACCOUNT` | Bank transfer |
-| `MOBILE_MONEY` | Mobile money (e.g., M-Pesa) |
-| `SWIFT` | SWIFT international transfer |
-| `UPI` | Unified Payments Interface (India) |
-| `INTERAC` | Interac (Canada) |
-| `WE_CHAT` | WeChat Pay (China) |
+| Channel        | Description                        |
+| :------------- | :--------------------------------- |
+| `BANK_ACCOUNT` | Bank transfer                      |
+| `MOBILE_MONEY` | Mobile money (e.g., M-Pesa)        |
+| `SWIFT`        | SWIFT international transfer       |
+| `UPI`          | Unified Payments Interface (India) |
+| `INTERAC`      | Interac (Canada)                   |
+| `WE_CHAT`      | WeChat Pay (China)                 |
 
 ## Get Payment Method
 
 ```typescript
-const paymentMethod = await afriex.paymentMethods.get('payment-method-id');
+const paymentMethod = await afriex.paymentMethods.get("payment-method-id");
 ```
 
 ## List Payment Methods
@@ -44,14 +44,14 @@ const paymentMethod = await afriex.paymentMethods.get('payment-method-id');
 ```typescript
 const response = await afriex.paymentMethods.list({
   page: 1,
-  limit: 20
+  limit: 20,
 });
 ```
 
 ## Delete Payment Method
 
 ```typescript
-await afriex.paymentMethods.delete('payment-method-id');
+await afriex.paymentMethods.delete("payment-method-id");
 ```
 
 ## Get Institutions (Banks/MoMo Providers)
@@ -60,8 +60,8 @@ Get a list of supported financial institutions for a country:
 
 ```typescript
 const institutions = await afriex.paymentMethods.getInstitutions({
-  channel: 'BANK_ACCOUNT',
-  countryCode: 'NG'
+  channel: "BANK_ACCOUNT",
+  countryCode: "NG",
 });
 
 // Returns: Institution[]
@@ -74,10 +74,10 @@ Verify account details before creating a payment method:
 
 ```typescript
 const accountInfo = await afriex.paymentMethods.resolveAccount({
-  channel: 'BANK_ACCOUNT',
-  accountNumber: '1234567890',
-  institutionCode: '044',
-  countryCode: 'NG'
+  channel: "BANK_ACCOUNT",
+  accountNumber: "1234567890",
+  institutionCode: "044",
+  countryCode: "NG",
 });
 
 // Returns: { recipientName, recipientEmail, recipientPhone }
@@ -89,25 +89,51 @@ Get or create a crypto wallet address:
 
 ```typescript
 const response = await afriex.paymentMethods.getCryptoWallet({
-  asset: 'USDT', // or 'USDC'
-  customerId: 'optional-customer-id'
+  asset: "USDT", // or 'USDC'
+  customerId: "optional-customer-id",
 });
 
 // Returns: { data: [{ address, network }], total, page }
 ```
 
-> **Note:** Crypto wallets are only available in production.
+import { Callout } from "nextra/components";
+
+<Callout type="note">Crypto wallets are only available in production.</Callout>
 
 ## Get Virtual Account
 
 Get or create a virtual bank account:
 
 ```typescript
+// Standard virtual account (default)
 const virtualAccount = await afriex.paymentMethods.getVirtualAccount({
-  currency: 'USD', // 'USD', 'NGN', 'GBP', or 'EUR'
+  currency: "USD",
   amount: 1000, // Optional
-  customerId: 'optional-customer-id'
+  customerId: "optional-customer-id",
+});
+
+// Pool account — shared business pool for a customer's country
+const poolAccount = await afriex.paymentMethods.getVirtualAccount({
+  type: "POOL_ACCOUNT",
+  currency: "NGN",
+  country: "NG",
+  amount: 5000,
+  customerId: "customer-id",
+  reference: "optional-ref",
 });
 ```
 
-> **Note:** Virtual accounts are only available in production.
+**Parameters:**
+
+| Field        | Type     | Required               | Description                                   |
+| :----------- | :------- | :--------------------- | :-------------------------------------------- |
+| `currency`   | `string` | Yes                    | `USD`, `NGN`, `GBP`, or `EUR`                 |
+| `type`       | `string` | -                      | `VIRTUAL_ACCOUNT` (default) or `POOL_ACCOUNT` |
+| `amount`     | `number` | Yes for `POOL_ACCOUNT` | Transaction amount                            |
+| `customerId` | `string` | Yes for `POOL_ACCOUNT` | Customer ID                                   |
+| `country`    | `string` | Yes for `POOL_ACCOUNT` | ISO 3166-1 alpha-2 country code               |
+| `reference`  | `string` | -                      | Optional transaction reference                |
+
+<Callout type="note">
+  Virtual accounts are only available in production.
+</Callout>
