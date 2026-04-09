@@ -19,13 +19,12 @@ Install the package via your preferred package manager:
 npm install @afriex/sdk
 ```
 
-
 ## Basic Usage
 
 ### 1. Import the SDK
 
 ```typescript
-import { AfriexSDK, Environment } from '@afriex/sdk';
+import { AfriexSDK, Environment } from "@afriex/sdk";
 ```
 
 ### 2. Initialize the client
@@ -33,7 +32,7 @@ import { AfriexSDK, Environment } from '@afriex/sdk';
 ```typescript
 const afriex = new AfriexSDK({
   apiKey: process.env.AFRIEX_API_KEY,
-  environment: 'staging', // 'staging' or 'production'
+  environment: "staging", // 'staging' or 'production'
 });
 ```
 
@@ -42,29 +41,29 @@ const afriex = new AfriexSDK({
 ```typescript
 // Create a customer
 const customer = await afriex.customers.create({
-  fullName: 'John Doe',
-  email: 'john@example.com',
-  phone: '+1234567890',
-  countryCode: 'US'
+  fullName: "John Doe",
+  email: "john@example.com",
+  phone: "+1234567890",
+  countryCode: "US",
 });
 
 // Get balance
 const balances = await afriex.balance.getBalance({
-  currencies: ['USD', 'NGN']
+  currencies: ["USD", "NGN"],
 });
 
-console.log('Customer:', customer);
-console.log('Balances:', balances);
+console.log("Customer:", customer);
+console.log("Balances:", balances);
 ```
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `apiKey` | `string` | **Required** | Your Afriex API key. |
-| `environment` | `string` | `'production'` | Target environment (`'staging'` or `'production'`). |
-| `webhookPublicKey` | `string` | - | Afriex public key for webhook verification. |
-| `retryConfig` | `RetryConfig` | `{ maxRetries: 0 }` | Configuration for request retries. |
+| Option             | Type          | Default             | Description                                         |
+| :----------------- | :------------ | :------------------ | :-------------------------------------------------- |
+| `apiKey`           | `string`      | **Required**        | Your Afriex API key.                                |
+| `environment`      | `string`      | `'production'`      | Target environment (`'staging'` or `'production'`). |
+| `webhookPublicKey` | `string`      | -                   | Afriex public key for webhook verification.         |
+| `retryConfig`      | `RetryConfig` | `{ maxRetries: 0 }` | Configuration for request retries.                  |
 
 ### Retry Configuration
 
@@ -72,7 +71,7 @@ By default, retries are **disabled**. You can enable them by passing a `retryCon
 
 ```typescript
 const afriex = new AfriexSDK({
-  apiKey: '...',
+  apiKey: "...",
   retryConfig: {
     maxRetries: 3,
     retryDelay: 1000, // 1 second
@@ -83,7 +82,7 @@ const afriex = new AfriexSDK({
 
 ## Server URLs
 
-| Environment | URL |
-| :--- | :--- |
-| Staging | `https://staging.afx-server.com` |
-| Production | `https://prod.afx-server.com` |
+| Environment | URL                              |
+| :---------- | :------------------------------- |
+| Staging     | `https://sandbox.api.afriex.com` |
+| Production  | `https://api.afriex.com`         |
